@@ -1,0 +1,376 @@
+<!-- Shruti Gupta-->
+<!--ID: 21355084 -->
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+ <!-- Importing important links for vue and icons -->
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+ <title>weather app</title>
+ <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+ <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/vue-resource"></script>
+ </head>
+
+ <!-- The name of the app, div is given a unique Id so CSS can be applied on this div -->
+ <div id="heading">
+ <h1>Rainy Rainy</h1>
+ </div>
+
+ <br />
+ <br/>
+
+ <!-- When app opens this sound is automatically played. -->
+ <audio autoplay hidden controls="controls" >
+ <source src="./music/hello1.mp3" />
+ </audio>
+
+ <!-- Search bar -->
+ <div id="app">
+ <div class="x">
+ <input
+ type="text"
+ v-model="message"
+ placeholder="Search....."
+ @keypress="retrieve"
+ />
+
+ </div>
+
+
+ <br />
+ <!-- Current info is printed. moustache syntax has been used here.{{}} these brackets access the returned json file of the
+ API called. We have stored file in weather. -->
+ <div v-if="typeof weather.list != 'undefined'">
+
+ <div class="box">
+ <div>City- {{ weather.city.name }},{{ weather.city.country }}</div>
+ <div>Current Temperature- {{weather.list[0].main.temp}}°C</div>
+ <div>Packing- {{weather.checkRain}}</div>
+ <div v-if="weather.checkRain =='Pack your Umbrella ☔' && count==0">{{music()}}</div>
+ <div>Weather- {{weather.clothes}}</div>
+ <div v-if="maskCheck != 'Error'">Mask Check: {{maskCheck}}</div>
+ <div v-if="maskCheck=='Wear a mask #'">{{music1()}}</div>
+ <button @click="retrieveFunction">Mask or not??</button><!--button for mask check, checks wherther user needs to wear mask or not-->
+ <button onclick ="print()" id="pic">Astronomy Picture of the Day by NASA</button><!--This prints the APOD-->
+ </div>
+
+
+
+ <div v-if="typeof picture.date != 'undefined'"><img :src="picture.url " id="picture"/></div><!--APOD is called using variable picture-->
+
+ <!-- The forecast for next 4 days start here. Every day prints all the values at an interval of 6hrs.-->
+ <div class="table">
+ <!-- Table1 : weather is used to access the api returned values-->
+ <table style="border: 5px solid black">
+ <h2>{{weather.list[8].dt_txt.slice(0,11)}}</h2>
+ <tr>
+ <th>Time</th>
+ <th>{{weather.list[8].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[10].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[12].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[14].dt_txt.slice(11,20)}}</th>
+
+ </tr>
+ <tr>
+ <th>Temperature</th>
+ <th>{{Math.round(weather.list[8].main.temp)}}</th>
+ <th>{{Math.round(weather.list[10].main.temp)}}</th>
+ <th>{{Math.round(weather.list[12].main.temp)}}</th>
+ <th>{{Math.round(weather.list[14].main.temp)}}</th>
+
+ </tr>
+ <tr>
+ <th>Windspeed</th>
+ <th>{{Math.round(weather.list[8].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[10].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[12].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[14].wind.speed)}}</th>
+ </tr>
+ <tr>
+ <th>Rainfall</th>
+ <th v-if="weather.list[8].weather[0].main=='Rain'">{{weather.list[8].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[10].weather[0].main=='Rain'">{{weather.list[10].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[12].weather[0].main=='Rain'">{{weather.list[12].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[14].weather[0].main=='Rain'">{{weather.list[14].rain['3h']}}</th>
+ <th v-else>0</th>
+ </tr>
+ </table>
+ <br/>
+
+ <!-- Table2 : weather is used to access the api returned values -->
+ <h2>{{weather.list[16].dt_txt.slice(0,11)}}</h2>
+ <table style="border: 5px solid black">
+ <tr>
+ <th>Time</th>
+ <th>{{weather.list[16].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[18].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[20].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[22].dt_txt.slice(11,20)}}</th>
+ </tr>
+ <tr>
+ <th>Temperature</th>
+ <th>{{Math.round(weather.list[16].main.temp)}}</th>
+ <th>{{Math.round(weather.list[18].main.temp)}}</th>
+ <th>{{Math.round(weather.list[20].main.temp)}}</th>
+ <th>{{Math.round(weather.list[22].main.temp)}}</th>
+
+ </tr>
+ <tr>
+ <th>Windspeed</th>
+ <th>{{Math.round(weather.list[16].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[18].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[20].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[22].wind.speed)}}</th>
+
+ </tr>
+ <tr>
+ <th>Rainfall Level</th>
+ <th v-if="weather.list[16].weather[0].main=='Rain'">{{weather.list[16].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[18].weather[0].main=='Rain'">{{weather.list[18].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[20].weather[0].main=='Rain'">{{weather.list[20].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[22].weather[0].main=='Rain'">{{weather.list[22].rain['3h']}}</th>
+ <th v-else>0</th>
+
+ </tr>
+ </table>
+ <br/>
+ <!-- Table3 : weather is used to access the api returned values -->
+ <h2>{{weather.list[24].dt_txt.slice(0,11)}}</h2>
+ <table style="border: 5px solid black">
+ <tr>
+ <th>Time</th>
+ <th>{{weather.list[24].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[26].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[28].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[30].dt_txt.slice(11,20)}}</th>
+ </tr>
+ <tr>
+ <th>Temperature</th>
+ <th>{{Math.round(weather.list[24].main.temp)}}</th>
+ <th>{{Math.round(weather.list[26].main.temp)}}</th>
+ <th>{{Math.round(weather.list[28].main.temp)}}</th>
+ <th>{{Math.round(weather.list[30].main.temp)}}</th>
+
+ </tr>
+ <tr>
+ <th>Windspeed</th>
+ <th>{{Math.round(weather.list[24].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[26].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[28].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[30].wind.speed)}}</th>
+
+ </tr>
+ <tr>
+ <th>Rainfall Level</th>
+ <th v-if="weather.list[24].weather[0].main=='Rain'">{{weather.list[24].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[26].weather[0].main=='Rain'">{{weather.list[26].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[28].weather[0].main=='Rain'">{{weather.list[28].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[30].weather[0].main=='Rain'">{{weather.list[30].rain['3h']}}</th>
+ <th v-else>0</th>
+
+ </tr>
+ </table>
+ <br/>
+ <!-- Table4 : weather is used to access the api returned values -->
+ <h2>{{weather.list[32].dt_txt.slice(0,11)}}</h2>
+ <table style="border: 5px solid black">
+ <tr>
+ <th>Time</th>
+ <th>{{weather.list[32].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[34].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[36].dt_txt.slice(11,20)}}</th>
+ <th>{{weather.list[38].dt_txt.slice(11,20)}}</th>
+ </tr>
+ <tr>
+ <th>Temperature</th>
+ <th>{{Math.round(weather.list[32].main.temp)}}</th>
+ <th>{{Math.round(weather.list[34].main.temp)}}</th>
+ <th>{{Math.round(weather.list[36].main.temp)}}</th>
+ <th>{{Math.round(weather.list[38].main.temp)}}</th>
+
+ </tr>
+ <tr>
+ <th>Windspeed</th>
+ <th>{{Math.round(weather.list[32].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[34].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[36].wind.speed)}}</th>
+ <th>{{Math.round(weather.list[38].wind.speed)}}</th>
+
+ </tr>
+ <tr>
+ <th>Rainfall Level</th>
+ <th v-if="weather.list[32].weather[0].main=='Rain'">{{weather.list[32].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[34].weather[0].main=='Rain'">{{weather.list[34].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[36].weather[0].main=='Rain'">{{weather.list[36].rain['3h']}}</th>
+ <th v-else>0</th>
+ <th v-if="weather.list[38].weather[0].main=='Rain'">{{weather.list[38].rain['3h']}}</th>
+ <th v-else>0</th>
+
+ </tr>
+ </table>
+ <br/>
+ </div>
+ </div>
+ </div>
+
+
+ <!-- JS file starts here -->
+
+ <script>
+ var app = new Vue({
+ el: "#app",
+ // It stores all the variables. weather and picture have been declared as objects.
+ data: {
+ message: "",
+ weather: {},
+ maskCheck: "Error",
+ count: 0,
+ picture:{},
+
+ },
+ // methods contains all the functions used in this file.
+ methods: {
+ // this is called when we enter the name of city and press enter. This sends request to server file.
+ // the returned ans is stored in weather object. get is using the open weather API and fetch is using APOD by nasa.
+ retrieve(e) {
+ if(e.key == "Enter"){
+ city = this.message;
+ let url = "http://localhost:8008/" + city;
+ this.$http.get(url).then((res) => {
+ this.response = JSON.parse(res.bodyText);
+ this.weather = this.response;
+ });
+ fetch("https://api.nasa.gov/planetary/apod?api_key=1a31P7TPF1UlEculzPhpxOpKmV2mXZgaDBy85Nxu")
+ .then((res1) => {return res1.json();})
+ .then((res2) => {this.picture=res2;});
+
+ }
+ },
+
+// this function is used to print forecast of next days.
+retrieveFunction() {
+ let lat = this.weather.city.coord.lat;
+ let lon = this.weather.city.coord.lon;
+ fetch(
+ "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=" + lat + "&lon=" +lon + "&APPID=91cdbdd5993171dd3aedee7a67b69ee4"
+ )
+ .then((res) => {
+ return res.json();
+ })
+ .then(this.setResults);
+},
+// this function checks whether server needs to wear a mask
+ setResults(results) {
+ let parameters = results;
+ let resultInfo = {mask: false,}
+ for (parameter in parameters.list) {
+ if (parameters.list[parameter].components.pm2_5 >= 10) {
+ resultInfo.mask = true;
+ }
+ }
+ if(resultInfo.mask == true){
+ this.maskCheck = "Wear a mask #";}
+ else{
+ this.maskCheck = "Mask is not needed";}
+},
+music()
+{
+ // this sound is played if its raining.
+ var audio = new Audio('./music/rain.mp3');
+ audio.play();
+ this.count=1;
+},
+music1()
+{
+ // this sound is played when user needs to wear a mask.
+ var audio1 = new Audio('./music/Mask.mp3');
+ audio1.play();
+},
+},
+});
+</script>
+</html>
+
+<!-- CSS starts -->
+<style>
+ body{
+ background-color: #B9D9EB;
+ background-repeat: repeat-y;
+ background-image: url("https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+ background-size: 100%;
+ }
+ #heading{
+ text-align: center;
+ margin-top: 4%;
+ font-family:Verdana, Geneva, Tahoma, sans-serif;
+ color: white;
+
+ }
+
+ #app{
+ text-align: center;
+ line-height: 200%;
+ color: wheat;
+ text-indent: 2%;
+
+ }
+ input{
+ border-radius: 15px;
+ padding: 10px 20%;
+ font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+ color: black;
+ background-color: #fff;
+ }
+ .box{
+ background-color: #292020ad;
+ width: 25%;
+ align-items: center;
+ margin: 0% 35%;
+ border-radius: 10px;
+ padding: 2%;
+ }
+ table{
+ width: 60%;
+ margin: 3% 20%;
+ display: flex;
+ flex-direction: column;
+ font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+ border:5px solid #000;
+ color: wheat;
+ background-color:#292020ad;
+ border-spacing: 70px 0px;
+ }
+ #picture {
+ display: none;
+ width: 50%;
+ height: 500px;
+ margin: 3% 25%;
+
+ }
+</style>
+<script>
+ function print() {
+ document.getElementById('picture')
+ .style.display = "block";
+ document.getElementById('pic')
+ .style.display = "none";
+
+
+ var audio1 = new Audio('./music/nasa.mp3');
+ audio1.play();
+
+}
+</script>
